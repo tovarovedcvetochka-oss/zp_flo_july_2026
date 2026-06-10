@@ -176,6 +176,8 @@
             <div class="calc-info">• Доля от продаж магазина (выполнено ${planPct.toFixed(1)}% плана): <b>${formatMoney(salesBonus)}</b></div>
             <div class="calc-info">• Списание составило ${writeOffPct.toFixed(2)}%: <b>(Бонус: ${formatMoney(writeOffBonus)})</b></div>
             <div class="calc-info">• Факт. ср. чек: ${formatMoney(factCheck)} при плане ${formatMoney(planCheck)} <b>(Бонус: ${formatMoney(checkBonus)})</b></div>
+            ${reviewsBonus > 0 ? `<div class="calc-info">• Бонус за отзывы (кол-во: ${reviews}): <b>${formatMoney(reviewsBonus)}</b></div>` : ''}
+            ${scriptBonus > 0 ? `<div class="calc-info">• Бонус за скрипты: <b>${formatMoney(scriptBonus)}</b></div>` : ''}
             <div class="calc-info">• Доля от «Работы флориста»: <b>${formatMoney(floristWorkBonus)}</b></div>
             
             <div class="total-pay">Итого к выдаче: <span>${formatMoney(totalSalary)}</span></div>
