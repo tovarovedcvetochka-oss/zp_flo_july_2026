@@ -134,9 +134,18 @@
         const planPct = factSales > 0 ? (factSales / planSales) * 100 : 0;
         
         let bonusSalesPct = 0.01; // По умолчанию <80%
-        if (planPct >= 100) bonusSalesPct = 0.05;
-        else if (planPct >= 90) bonusSalesPct = 0.03;
-        else if (planPct >= 80) bonusSalesPct = 0.02;
+        let conditionText = "<80% плана (применен 1%)";
+
+        if (planPct >= 100) {
+            bonusSalesPct = 0.05;
+            conditionText = ">=100% плана (применен 5%)";
+        } else if (planPct >= 90) {
+            bonusSalesPct = 0.03;
+            conditionText = ">=90% плана (применен 3%)";
+        } else if (planPct >= 80) {
+            bonusSalesPct = 0.02;
+            conditionText = ">=80% плана (применен 2%)";
+        }
 
         // Премия от продаж соизмеримо сменам
         const salesBonus = salesBase * bonusSalesPct * (employeeShifts / totalShifts);
@@ -163,7 +172,7 @@
             Детализация расчета:
             <div class="calc-info">• Оклад за смены: <b>${formatMoney(baseSalary)}</b></div>
             <div class="calc-info">• База для расчета % (Выручка - Работа): <b>${formatMoney(salesBase)}</b></div>
-            <div class="calc-info">• Доля от продаж магазина (выполнено ${planPct.toFixed(1)}% плана): <b>${formatMoney(salesBonus)}</b></div>
+            <div class="calc-info">• Доля от продаж магазина (выполнено ${planPct.toFixed(1)}% плана, условие ${conditionText}): <b>${formatMoney(salesBonus)}</b></div>
             <div class="calc-info">• Списание составило ${writeOffPct.toFixed(2)}%: <b>(Бонус: ${formatMoney(writeOffBonus)})</b></div>
             <div class="calc-info">• Факт. ср. чек: ${formatMoney(factCheck)} при плане ${formatMoney(planCheck)} <b>(Бонус: ${formatMoney(checkBonus)})</b></div>
             ${reviewsBonus > 0 ? `<div class="calc-info">• Бонус за отзывы (кол-во: ${reviews}): <b>${formatMoney(reviewsBonus)}</b></div>` : ''}
