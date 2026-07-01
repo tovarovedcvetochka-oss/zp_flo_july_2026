@@ -79,7 +79,6 @@
     <button onclick="calculateSalary()">Рассчитать ИТОГО</button>
 
     <div id="result">Заполните поля и нажмите кнопку для расчета</div>
-
     <script>
     // Красивое форматирование цифр для вывода результатов
     function formatMoney(value) {
@@ -105,13 +104,15 @@
 
     // Извлечение чистого числа из отформатированной ячейки для математических расчетов
     function getCleanNumber(id) {
-        let val = document.getElementById(id).value;
+        let element = document.getElementById(id);
+        if (!element || !element.value) return 0;
+        let val = element.value;
         return parseFloat(val.replace(/\D/g, '')) || 0;
     }
 
     function calculateSalary() {
         // Получаем чистые числовые значения из полей
-        const rate = parseFloat(document.getElementById('role').value);
+        const rate = parseFloat(document.getElementById('role').value) || 0;
         const employeeShifts = getCleanNumber('employeeShifts');
         const totalShifts = getCleanNumber('totalShifts') || 1; // защита от деления на 0
         
@@ -130,23 +131,23 @@
         const salesBase = Math.max(0, factSales - floristWorkTotal);
         
         // % выполнения общего плана магазина
-        const planPct = (factSales / planSales) * 100;
+        const planPct = factSales > 0 ? (factSales / planSales) * 100 : 0;
         
-        let bonusSalesPct = 0.01; // <80%
+        let bonusSalesPct = 0.01; // По умолчанию <80%
         if (planPct >= 100) bonusSalesPct = 0.05;
-        else if (planPct > 90) bonusSalesPct = 0.03;
-        else if (planPct > 80) bonusSalesPct = 0.02;
+        else if (planPct >= 90) bonusSalesPct = 0.03;
+        else if (planPct >= 80) bonusSalesPct = 0.02;
 
         // Премия от продаж соизмеримо сменам
         const salesBonus = salesBase * bonusSalesPct * (employeeShifts / totalShifts);
 
         // 3. Автоматический расчет % списания от выручки
         const writeOffPct = factSales > 0 ? (writeOffSum / factSales) * 100 : 0;
-        const writeOffBonus = writeOffPct <= 5 ? 2000 : 0;
+        const writeOffBonus = (writeOffPct <= 5 && factSales > 0) ? 2000 : 0;
 
         // 4. Средний чек
-        const factCheck = factSales / checkCount;
-        const checkBonus = factCheck >= planCheck ? 1500 : 0;
+        const factCheck = factSales > 0 ? (factSales / checkCount) : 0;
+        const checkBonus = (factCheck >= planCheck && factSales > 0) ? 1500 : 0;
 
         // 5. Отзывы
         const reviewsBonus = reviews >= 10 ? 1500 : 0;
