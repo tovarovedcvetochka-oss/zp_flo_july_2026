@@ -72,14 +72,6 @@
     </div>
 
     <div class="form-group">
-        <label>Выполнение скрипта по выпускному:</label>
-        <select id="scriptDone">
-            <option value="0">Нет</option>
-            <option value="1000">Да (+1 000 ₽)</option>
-        </select>
-    </div>
-
-    <div class="form-group">
         <label>Общая сумма за «Работу флориста» (руб.):</label>
         <input type="text" id="floristWorkTotal" placeholder="0 ₽" oninput="formatNumberInput(this, true)">
     </div>
@@ -154,19 +146,16 @@
 
         // 4. Средний чек
         const factCheck = factSales / checkCount;
-        const checkBonus = factCheck >= planCheck ? 1000 : 0;
+        const checkBonus = factCheck >= planCheck ? 1500 : 0;
 
         // 5. Отзывы
-        const reviewsBonus = reviews >= 10 ? 1000 : 0;
+        const reviewsBonus = reviews >= 10 ? 1500 : 0;
 
-        // 6. Скрипт
-        const scriptBonus = parseFloat(document.getElementById('scriptDone').value) || 0;
-
-        // 7. Работа флориста (50% распределяется по сменам)
+        // 6. Работа флориста (50% распределяется по сменам)
         const floristWorkBonus = (floristWorkTotal * 0.5) * (employeeShifts / totalShifts);
 
         // ИТОГОВАЯ СУММА
-        const totalSalary = baseSalary + salesBonus + writeOffBonus + checkBonus + reviewsBonus + scriptBonus + floristWorkBonus;
+        const totalSalary = baseSalary + salesBonus + writeOffBonus + checkBonus + reviewsBonus + floristWorkBonus;
 
         // Вывод результатов с форматированием денежных сумм
         document.getElementById('result').innerHTML = `
