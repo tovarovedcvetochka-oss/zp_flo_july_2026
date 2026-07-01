@@ -42,12 +42,22 @@
     </div>
 
     <div class="form-group">
-        <label>Фактическая выручка магазина (руб.):</label>
+        <label>Дней в месяце:</label>
+        <input type="text" id="daysInMonth" placeholder="Например, 30 или 31" oninput="formatNumberInput(this, false)">
+    </div>
+
+    <div class="form-group">
+        <label>Текущий день месяца:</label>
+        <input type="text" id="currentDay" placeholder="Например, 15" oninput="formatNumberInput(this, false)">
+    </div>
+
+    <div class="form-group">
+        <label>Фактическая выручка магазина на текущий день (руб.):</label>
         <input type="text" id="factSales" placeholder="0 ₽" oninput="formatNumberInput(this, true)">
     </div>
 
     <div class="form-group">
-        <label>План продаж магазина (руб.):</label>
+        <label>План продаж магазина на весь месяц (руб.):</label>
         <input type="text" id="planSales" placeholder="0 ₽" oninput="formatNumberInput(this, true)">
     </div>
 
@@ -116,6 +126,9 @@
         const employeeShifts = getCleanNumber('employeeShifts');
         const totalShifts = getCleanNumber('totalShifts') || 1; // защита от деления на 0
         
+        const daysInMonth = getCleanNumber('daysInMonth') || 30; // защита от деления на 0
+        const currentDay = Math.min(getCleanNumber('currentDay') || 1, daysInMonth); // текущий день не может быть больше дней в месяце
+        
         const factSales = getCleanNumber('factSales');
         const planSales = getCleanNumber('planSales') || 1; // защита от деления на 0
         const floristWorkTotal = getCleanNumber('floristWorkTotal');
@@ -124,27 +137,30 @@
         const checkCount = getCleanNumber('checkCount') || 1; // защита от деления на 0
         const reviews = getCleanNumber('reviews');
 
+        // Вычисление пропорционального плана на текущий день
+        const planSalesToday = (planSales / daysInMonth) * currentDay;
+
         // 1. Оклад (ставка * количество отработанных смен)
         const baseSalary = rate * employeeShifts;
 
         // 2. База для расчета % от выручки (выручка - работа)
         const salesBase = Math.max(0, factSales - floristWorkTotal);
         
-        // % выполнения общего плана магазина
-        const planPct = factSales > 0 ? (factSales / planSales) * 100 : 0;
+        // % выполнения плана на текущий день
+        const planPct = factSales > 0 ? (factSales / planSalesToday) * 100 : 0;
         
         let bonusSalesPct = 0.01; // По умолчанию <80%
-        let conditionText = "<80% плана (применен 1%)";
+        let conditionText = "<80% от текущего плана (применен 1%)";
 
         if (planPct >= 100) {
             bonusSalesPct = 0.05;
-            conditionText = ">=100% плана (применен 5%)";
+            conditionText = ">=100% от текущего плана (применен 5%)";
         } else if (planPct >= 90) {
             bonusSalesPct = 0.03;
-            conditionText = ">=90% плана (применен 3%)";
+            conditionText = ">=90% от текущего плана (применен 3%)";
         } else if (planPct >= 80) {
             bonusSalesPct = 0.02;
-            conditionText = ">=80% плана (применен 2%)";
+            conditionText = ">=80% от текущего плана (применен 2%)";
         }
 
         // Премия от продаж соизмеримо сменам
@@ -171,8 +187,10 @@
         document.getElementById('result').innerHTML = `
             Детализация расчета:
             <div class="calc-info">• Оклад за смены: <b>${formatMoney(baseSalary)}</b></div>
+            <div class="calc-info">• План на весь месяц: <b>${formatMoney(planSales)}</b></div>
+            <div class="calc-info">• План на ${currentDay}-й день из ${daysInMonth}: <b>${formatMoney(planSalesToday)}</b></div>
             <div class="calc-info">• База для расчета % (Выручка - Работа): <b>${formatMoney(salesBase)}</b></div>
-            <div class="calc-info">• Доля от продаж магазина (выполнено ${planPct.toFixed(1)}% плана, условие ${conditionText}): <b>${formatMoney(salesBonus)}</b></div>
+            <div class="calc-info">• Доля от продаж (план текущего дня выполнен на ${planPct.toFixed(1)}%, условие ${conditionText}): <b>${formatMoney(salesBonus)}</b></div>
             <div class="calc-info">• Списание составило ${writeOffPct.toFixed(2)}%: <b>(Бонус: ${formatMoney(writeOffBonus)})</b></div>
             <div class="calc-info">• Факт. ср. чек: ${formatMoney(factCheck)} при плане ${formatMoney(planCheck)} <b>(Бонус: ${formatMoney(checkBonus)})</b></div>
             ${reviewsBonus > 0 ? `<div class="calc-info">• Бонус за отзывы (кол-во: ${reviews}): <b>${formatMoney(reviewsBonus)}</b></div>` : ''}
